@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {FlatList, KeyboardAvoidingView, Platform, StyleSheet} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, ImageBackground } from 'react-native';
 import {
     ActivityIndicator,
     Button,
@@ -11,17 +11,16 @@ import {
     Text,
     TextInput
 } from 'react-native-paper';
-import {useRouter} from 'expo-router';
-import {ThemedView} from '@/components/ThemedView';
-import {ThemedText} from '@/components/ThemedText';
-import {useTodos} from '@/context/TodoContext';
+import { useRouter } from 'expo-router';
+import { ThemedText } from '@/components/ThemedText';
+import { useTodos } from '@/context/TodoContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import API_URL from '@/config/config';
 import Constants from "expo-constants/src/Constants";
 
 const TodosScreen = () => {
-    const {todos, fetchTodos} = useTodos();
+    const { todos, fetchTodos } = useTodos();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [isAdding, setIsAdding] = useState(false);
@@ -50,7 +49,7 @@ const TodosScreen = () => {
             await axios.post(`${API_URL}/api/todos`, {
                 title,
                 description
-            }, {headers: {Authorization: `Bearer ${token}`}});
+            }, { headers: { Authorization: `Bearer ${token}` } });
             fetchTodos();
             setTitle('');
             setDescription('');
@@ -64,7 +63,7 @@ const TodosScreen = () => {
     const handleDeleteTodo = async (id: string) => {
         try {
             const token = await AsyncStorage.getItem('token');
-            await axios.delete(`${API_URL}/api/todos/${id}`, {headers: {Authorization: `Bearer ${token}`}});
+            await axios.delete(`${API_URL}/api/todos/${id}`, { headers: { Authorization: `Bearer ${token}` } });
             fetchTodos();
         } catch (error) {
             setDialogMessage('Failed to delete todo');
@@ -74,15 +73,19 @@ const TodosScreen = () => {
 
     return (
         <PaperProvider>
-            <ThemedView style={styles.container}>
+            <ImageBackground
+                source={{ uri: 'https://wallpapercave.com/wp/wp14899154.webp' }}
+                style={styles.container}
+                resizeMode="cover"
+            >
                 <ThemedText style={styles.title} type="title">ToDo List</ThemedText>
                 {loading ? (
-                    <ActivityIndicator style={styles.loading} animating={true}/>
+                    <ActivityIndicator style={styles.loading} animating={true} />
                 ) : (
                     <FlatList
                         data={todos}
                         keyExtractor={(item) => item._id}
-                        renderItem={({item}) => (
+                        renderItem={({ item }) => (
                             <Card style={styles.card} elevation={3} onPress={() => router.push(`../todo/${item._id}`)}>
                                 <Card.Content>
                                     <Text variant="titleMedium">{item.title}</Text>
@@ -97,22 +100,19 @@ const TodosScreen = () => {
                     />
                 )}
                 {isAdding && (
-                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                                          style={styles.inputContainer}>
-                        <TextInput label="Title" value={title} onChangeText={setTitle} style={styles.input}
-                                   mode="outlined"/>
-                        <TextInput label="Description" value={description} onChangeText={setDescription}
-                                   style={styles.input} mode="outlined" multiline/>
-                        <Button mode="contained" onPress={handleAddTodo} style={styles.addButton}>Add Todo</Button>
-                        <Button onPress={() => setIsAdding(false)} style={styles.cancelButton}>Cancel</Button>
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.inputContainer}>
+                        <TextInput label="Title" value={title} onChangeText={setTitle} style={styles.input} mode="outlined" />
+                        <TextInput label="Description" value={description} onChangeText={setDescription} style={styles.input} mode="outlined" multiline />
+                        <Button mode="contained" onPress={handleAddTodo} style={[styles.addButton, styles.redButton]}>Add Todo</Button>
+                        <Button onPress={() => setIsAdding(false)} style={[styles.cancelButton, styles.redButton]}>Cancel</Button>
                     </KeyboardAvoidingView>
                 )}
                 {!isAdding && (
-                    <FAB style={styles.fab} icon="plus" onPress={() => setIsAdding(true)} label="Add Todo"/>
+                    <FAB style={styles.fab} icon="plus" onPress={() => setIsAdding(true)} label="Add Todo" />
                 )}
                 <Portal>
                     <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
-                        <Dialog.Title>Alert</Dialog.Title>
+                    <Dialog.Title>Alert</Dialog.Title>
                         <Dialog.Content>
                             <Text>{dialogMessage}</Text>
                         </Dialog.Content>
@@ -121,7 +121,7 @@ const TodosScreen = () => {
                         </Dialog.Actions>
                     </Dialog>
                 </Portal>
-            </ThemedView>
+            </ImageBackground>
         </PaperProvider>
     );
 };
@@ -170,6 +170,10 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    redButton: {
+        backgroundColor: 'red', // Mengatur warna latar belakang menjadi merah
+        color: 'white', // Mengatur warna teks menjadi putih
     },
 });
 
